@@ -85,60 +85,50 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     final theme = Theme.of(context);
 
     return WemwoScreenContainer(
-      // jei WemwoScreenContainer turi papildomų parametrų – pridėk juos čia
-      child: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 32),
-                WemwoLogoText(),
-                const SizedBox(height: 32),
-                _buildIcon(),
-                const SizedBox(height: 24),
-                Text(
-                  'Patvirtink savo el. paštą',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF3D256B),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Išsiuntėme patvirtinimo laišką adresu:',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.black54,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  widget.email,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF5B32B4),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                _buildCard(context),
-                const SizedBox(height: 24),
-                Text(
-                  'Patvirtinimas padeda mums saugoti tavo duomenis.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.black45,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-              ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // viršuje jau yra padding iš WemwoScreenContainer
+          WemwoLogoText(),
+          const SizedBox(height: 32),
+          _buildIcon(),
+          const SizedBox(height: 24),
+          Text(
+            'Patvirtink savo el. paštą',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF3D256B),
             ),
+            textAlign: TextAlign.center,
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            'Išsiuntėme patvirtinimo laišką adresu:',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.email,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF5B32B4),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          _buildCard(context),
+          const SizedBox(height: 24),
+          Text(
+            'Patvirtinimas padeda mums saugoti tavo duomenis.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.black45,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -175,6 +165,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     final theme = Theme.of(context);
 
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 18),
       decoration: BoxDecoration(
         color: Colors.white,
