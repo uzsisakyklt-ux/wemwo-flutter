@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import '../../widgets/wemwo_logo_text.dart';
 import '../../widgets/wemwo_button.dart';
 import '../../widgets/wemwo_screen_container.dart';
+import '../../widgets/wemwo_steps_header.dart';
+
+import '../../models/candidate_model.dart';
+import '../../stores/profile_store.dart';
+import 'candidate_about_screen.dart';
 
 class CandidateProfileSetupScreen extends StatefulWidget {
   const CandidateProfileSetupScreen({super.key});
@@ -14,8 +19,8 @@ class CandidateProfileSetupScreen extends StatefulWidget {
 
 class _CandidateProfileSetupScreenState
     extends State<CandidateProfileSetupScreen> {
-  final _firstNameController = TextEditingController(text: 'Jonas');
-  final _lastNameController = TextEditingController(text: 'Petraitis');
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
 
   String? _selectedCity;
   String? _selectedJobType;
@@ -29,22 +34,64 @@ class _CandidateProfileSetupScreenState
   }
 
   void _onNext() {
-    // TODO: čia vėliau prijungsim validaciją + perėjimą į kitą žingsnį
-    // Navigator.push(...);
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+
+    if (firstName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Įrašyk savo vardą.')),
+      );
+      return;
+    }
+
+    if (_selectedCity == null || _selectedCity!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pasirink miestą.')),
+      );
+      return;
+    }
+
+    if (_selectedJobType == null || _selectedJobType!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pasirink norimą darbo tipą.')),
+      );
+      return;
+    }
+
+    // Sukuriam / perrašom kandidatą su bazine info ir išsaugom store.
+    final baseModel = CandidateModel(
+      firstName: firstName,
+      lastName: lastName.isNotEmpty ? lastName : null,
+      city: _selectedCity,
+      jobType: _selectedJobType,
+      sector: _selectedSector, // 👈 sektorius iš dropdown
+      // avatarUrl kol kas nenaudojam (_PhotoUpload dar tik UI)
+    );
+
+    ProfileStore.instance.save(baseModel);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CandidateAboutScreen(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return WemwoScreenContainer(
-      // jei tavo WemwoScreenContainer turi kitų parametrų (pvz. showBackButton),
-      // čia juos pridėk
       child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const _StepIndicator(),
+              /// 👉 STEP 2: Kandidato profilio kūrimas
+              const WemwoStepsHeader(
+                labels: ['Paskyra', 'Patvirtinimas', 'Profilis'],
+                currentStep: 2,
+              ),
               const SizedBox(height: 24),
 
               const WemwoLogoText(),
@@ -57,7 +104,7 @@ class _CandidateProfileSetupScreenState
                   color: Colors.grey.shade700,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               _ProfileCard(
                 firstNameController: _firstNameController,
@@ -76,126 +123,6 @@ class _CandidateProfileSetupScreenState
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _StepIndicator extends StatelessWidget {
-  const _StepIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    // Paprastas 3 žingsnių indikatorius:
-    // [✓ Paskyra] – [✓ Patvirtinimas] – [3 Profilis]
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _StepCircle(
-          label: '1',
-          title: 'Paskyra',
-          isCompleted: true,
-        ),
-        _StepLine(),
-        _StepCircle(
-          label: '2',
-          title: 'Patvirtinimas',
-          isCompleted: true,
-        ),
-        _StepLine(),
-        _StepCircle(
-          label: '3',
-          title: 'Profilis',
-          isCurrent: true,
-        ),
-      ],
-    );
-  }
-}
-
-class _StepCircle extends StatelessWidget {
-  final String label;
-  final String title;
-  final bool isCompleted;
-  final bool isCurrent;
-
-  const _StepCircle({
-    required this.label,
-    required this.title,
-    this.isCompleted = false,
-    this.isCurrent = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bool active = isCompleted || isCurrent;
-
-    return Column(
-      children: [
-        Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: active
-                ? const LinearGradient(
-                    colors: [
-                      Color(0xFF8A6CFF),
-                      Color(0xFFFF72D2),
-                    ],
-                  )
-                : null,
-            border: active
-                ? null
-                : Border.all(
-                    color: Colors.purple.shade100,
-                  ),
-            color: active ? null : Colors.white,
-          ),
-          child: Center(
-            child: isCompleted
-                ? const Icon(
-                    Icons.check,
-                    size: 18,
-                    color: Colors.white,
-                  )
-                : Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: active
-                          ? Colors.white
-                          : Colors.purple.shade300,
-                    ),
-                  ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 11,
-            color: active
-                ? Colors.purple.shade400
-                : Colors.grey.shade500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StepLine extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      decoration: BoxDecoration(
-        color: Colors.purple.shade100,
-        borderRadius: BorderRadius.circular(99),
       ),
     );
   }
@@ -227,22 +154,22 @@ class _ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         children: [
           const _PhotoUpload(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
 
           Row(
             children: [
@@ -262,7 +189,7 @@ class _ProfileCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           _Dropdown(
             label: 'Miestas',
             value: selectedCity,
@@ -277,22 +204,21 @@ class _ProfileCard extends StatelessWidget {
             hint: 'Pasirink miestą',
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           _Dropdown(
             label: 'Norimas darbo tipas',
             value: selectedJobType,
             items: const [
-              'Pilnas etatas',
-              'Nepilnas etatas',
+              'Iš ofiso',
               'Nuotolinis',
               'Hibridinis',
-              'Projektinis darbas',
+              'Bet kuris',
             ],
             onChanged: onJobTypeChanged,
             hint: 'Pasirink darbo tipą',
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           _Dropdown(
             label: 'Sektorius',
             value: selectedSector,
@@ -307,14 +233,12 @@ class _ProfileCard extends StatelessWidget {
             hint: 'Pasirink sektorių',
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: WemwoButton(
-              // jei pas tave parametras ne text, o label – atitinkamai pakeisk
               text: 'Toliau',
-              onPressed: onNext,
-              // jei turi tipą (primary / secondary) – pridėk čia
+              onTap: onNext,
             ),
           ),
         ],
@@ -334,24 +258,24 @@ class _PhotoUpload extends StatelessWidget {
           alignment: Alignment.bottomRight,
           children: [
             Container(
-              width: 120,
-              height: 120,
+              width: 96,
+              height: 96,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.purple.withOpacity(0.08),
               ),
               child: const Icon(
                 Icons.camera_alt_outlined,
-                size: 40,
+                size: 32,
                 color: Colors.purple,
               ),
             ),
             CircleAvatar(
-              radius: 18,
+              radius: 16,
               backgroundColor: const Color(0xFF8A6CFF),
               child: const Icon(
                 Icons.add,
-                size: 20,
+                size: 18,
                 color: Colors.white,
               ),
             ),
@@ -361,7 +285,7 @@ class _PhotoUpload extends StatelessWidget {
         Text(
           'Įkelk profilio nuotrauką',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             color: Colors.grey.shade600,
           ),
         ),
@@ -381,18 +305,35 @@ class _TextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: Colors.grey.shade100,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade600,
+          ),
         ),
-      ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          textInputAction: TextInputAction.next,
+          style: const TextStyle(fontSize: 14),
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            filled: true,
+            fillColor: Colors.grey.shade100,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -414,27 +355,52 @@ class _Dropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: Colors.grey.shade100,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade600,
+          ),
         ),
-      ),
-      hint: Text(hint),
-      items: items
-          .map(
-            (e) => DropdownMenuItem(
-              value: e,
-              child: Text(e),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<String>(
+          value: value,
+          isDense: true,
+          decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            filled: true,
+            fillColor: Colors.grey.shade100,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
             ),
-          )
-          .toList(),
-      onChanged: onChanged,
+          ),
+          hint: Text(
+            hint,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+            ),
+          ),
+          items: items
+              .map(
+                (e) => DropdownMenuItem(
+                  value: e,
+                  child: Text(
+                    e,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              )
+              .toList(),
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 }

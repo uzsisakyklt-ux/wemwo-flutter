@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
+import '../theme/wemwo_theme.dart';
 
 class WemwoButton extends StatelessWidget {
   final String text;
@@ -26,7 +26,7 @@ class WemwoButton extends StatelessWidget {
         child: Text(
           text,
           style: const TextStyle(
-            color: Colors.white,    // TAVO TAISYKLĖ
+            color: Colors.white,
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),

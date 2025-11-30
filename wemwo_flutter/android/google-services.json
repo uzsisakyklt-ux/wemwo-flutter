@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "430051867196",
+    "project_id": "wemwo-964e0",
+    "storage_bucket": "wemwo-964e0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:430051867196:android:c6cbee4ef9aedb6f162139",
+        "android_client_info": {
+          "package_name": "com.example.wemwo_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxHR-Pa8KVMQlOY9Bnvu3GWar-KqroURM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
